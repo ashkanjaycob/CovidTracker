@@ -1,4 +1,6 @@
 <template>
+
+  
     <div dir="rtl">
         <nav class="navbar bg-body-tertiary fixed-top">
             <div class="container-fluid p-4">

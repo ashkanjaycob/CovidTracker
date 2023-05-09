@@ -1,7 +1,12 @@
 <template>
   <div dir="rtl">
-  <div class="grey-bg container-fluid p-5">
-    <!-- <section id="minimal-statistics">
+    <div class="text-center pt-5 mt-5" v-if="!isShow">
+    <div class="spinner-border text-danger" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+    <div v-else class="grey-bg container-fluid p-5">
+      <!-- <section id="minimal-statistics">
       <div class="row">
         <div class="col-12 mt-3 mb-1">
           <h4 class="text-uppercase">Minimal Statistics Cards</h4>
@@ -235,61 +240,58 @@
         </div>
       </div>
     </section> -->
-      
-    <section id="stats-subtitle">
-    <div class="row searchi mb-5">
-      <p class="fs-6">شما می توانید با وارد کردن نام کشور دلخواهتان ، وضعیت را در یک کشور خاص بررسی کنید .</p>
-      <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="نام کشور را وارد کنید" aria-label="Search">
-          <button class="btn btn-outline-dark mx-3 w-50" type="submit">جست و جو</button>
-        </form>
-    </div>
-  
-    <div class="row g-2">
-      <div class="col-xl-6 col-md-12">
-        <div class="card overflow-hidden">
-          <div class="card-content">
-            <div class="card-body cleartfix">
-              <div class="media align-items-stretch">
-                <div class="align-self-center">
-                  <i class="icon-pencil primary font-large-2 mr-2"></i>
+
+      <section id="stats-subtitle">
+        <div class="row searchi mb-5">
+          <p class="fs-6">شما می توانید با وارد کردن نام کشور دلخواهتان ، وضعیت را در یک کشور خاص بررسی کنید .</p>
+          <form @submit.prevent="getData" class="d-flex" role="search">
+            <input class="form-control me-2" type="search" placeholder="نام کشور را وارد کنید" aria-label="Search">
+            <button class="btn btn-outline-dark mx-3 w-50" type="submit">جست و جو</button>
+          </form>
+        </div>
+
+        <div class="row g-2">
+          <div class="col-xl-6 col-md-12">
+            <div class="card overflow-hidden">
+              <div class="card-content">
+                <div class="card-body cleartfix">
+                  <div class="media align-items-stretch">
+                    <div class="align-self-center">
+                      <i class="icon-pencil primary font-large-2 mr-2"></i>
+                    </div>
+                    <div class="media-body">
+                      <h4>تعداد <b class="text-danger">کل</b> مبتلایان</h4>
+                    </div>
+                    <div class="align-self-center">
+                      <h1 class="py-2 text-danger">{{ people }}</h1>
+                    </div>
+                  </div>
                 </div>
-                <div class="media-body">
-                  <h4>تعداد <b class="text-danger">کل</b> مبتلایان</h4>
-                  <span>توضیحات ...</span>
-                </div>
-                <div class="align-self-center">
-                  <h1>18,000</h1>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-6 col-md-12">
+            <div class="card">
+              <div class="card-content">
+                <div class="card-body cleartfix">
+                  <div class="media align-items-stretch">
+                    <div class="align-self-center">
+                      <i class="icon-speech warning font-large-2 mr-2"></i>
+                    </div>
+                    <div class="media-body">
+                      <h4>تعداد مبتلایان اخیر</h4>
+                    </div>
+                    <div class="align-self-center">
+                      <h1 class="py-2 text-danger">{{ pepnew }}</h1>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-  
-      <div class="col-xl-6 col-md-12">
-        <div class="card">
-          <div class="card-content">
-            <div class="card-body cleartfix">
-              <div class="media align-items-stretch">
-                <div class="align-self-center">
-                  <i class="icon-speech warning font-large-2 mr-2"></i>
-                </div>
-                <div class="media-body">
-                  <h4>تعداد مبتلایان امروز</h4>
-                  <span>توضیحات</span>
-                </div>
-                <div class="align-self-center"> 
-                  <h1>84,695</h1>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  
-    <!-- <div class="row">
+        <!-- <div class="row">
 
       <div class="col-xl-6 col-md-12">
         <div class="card">
@@ -333,19 +335,58 @@
         </div>
       </div>
     </div> -->
-  </section>
+      </section>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
+import { ref } from 'vue'
+import axios from 'axios';
 export default {
   name: 'Home',
+  setup() {
 
+    const people = ref(" ");
+    const pepnew = ref(" ");
+    const isShow = ref(false);
+
+    function getData() {
+      // const axios = require('axios')
+      // Make a request for a user with a given ID
+      axios.get('https://api.covid19api.com/summary')
+        .then(function (response) {
+          console.log(response.data);
+          people.value = response.data.Global.TotalConfirmed;
+          pepnew.value = response.data.Global.NewConfirmed;
+          isShow.value = true ;
+        })
+        .catch(function (error) {
+          // handle error
+          console.log(error);
+        })
+    }
+    getData();
+    setInterval(()=>{
+      getData();
+    } , 10000)
+
+    
+
+
+
+    return { getData, people , pepnew , isShow}
+  }
 }
 </script>
 
 
 <style >
-
+@font-face {
+  font-family: dana;
+  src: url(../Ravi/Dana.woff);
+}
+h1 {
+  font-family: dana ,  Helvetica, sans-serif !important;
+}
 </style>
